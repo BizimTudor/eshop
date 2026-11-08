@@ -4,6 +4,7 @@ import com.eshop.utils.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,11 +15,16 @@ public class ProductService {
     private final ProductRepository repository;
 
     @Transactional(readOnly = true)
-    public Page<ProductResponse> list(String name, Pageable pageable) {
-        Page<Product> page = (name == null || name.isBlank())
-                ? repository.findAll(pageable)
-                : repository.findByNameContainingIgnoreCase(name, pageable);
-        return page.map(ProductResponse::from);
+    public Page<ProductResponse> list(String name, Long categoryId, Pageable pageable) {
+        Specification<Product> spec = (root, query, cb) -> cb.conjunction(); // matches everything
+
+        if (name != null && !name.isBlank()) {
+            spec = spec.and(ProductSpecs.nameContains(name.trim()));
+        }
+        if (categoryId != null) {
+            spec = spec.and(ProductSpecs.inCategory(categoryId));
+        }
+        return repository.findAll(spec, pageable).map(ProductResponse::from);
     }
 
     @Transactional(readOnly = true)

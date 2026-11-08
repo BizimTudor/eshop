@@ -21,8 +21,9 @@ public class ProductController {
     @GetMapping
     public PagedModel<ProductResponse> list(
             @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
             @PageableDefault(size = 20, sort = "id") Pageable pageable) {
-        return new PagedModel<>(service.list(name, pageable));
+        return new PagedModel<>(service.list(name, categoryId, pageable));
     }
 
     @GetMapping("/{id}")
