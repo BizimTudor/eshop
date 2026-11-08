@@ -2,6 +2,7 @@ package com.eshop.utils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +28,20 @@ public class GlobalExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
         pd.setTitle("Invalid request");
         pd.setProperty("errors", errors);
+        return pd;
+    }
+
+    @ExceptionHandler(DuplicateCategoryException.class)
+    public ProblemDetail handleDuplicateCategory(DuplicateCategoryException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setTitle("Category already exists");
+        return pd;
+    }
+
+    @ExceptionHandler(CategoryInUseException.class)
+    public ProblemDetail handleCategoryInUse(CategoryInUseException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setTitle("Category is in use");
         return pd;
     }
 }
